@@ -148,6 +148,7 @@ namespace UnityEngine.UIElements
             // Allow KeyDown/KeyUp events to be processed before pointer events.
             var target = currentFocusedElement ?? m_Panel.visualTree_as_IEventHandler;
             ProcessImguiEvents(target);
+            m_PointerEvent.modifiers = s_Modifiers;
 
             if (eventSystem != null)
                 eventSystem.SetSelectedGameObject(selectableGameObject);
@@ -328,16 +329,13 @@ namespace UnityEngine.UIElements
         // throughout the entire processing cycle.
         void ProcessImguiEvents(IEventHandler target)
         {
-            bool first = true;
-
             while (Event.PopEvent(m_Event))
             {
                 if (m_Event.type == EventType.Ignore || m_Event.type == EventType.Repaint ||
                     m_Event.type == EventType.Layout)
                     continue;
 
-                s_Modifiers = first ? m_Event.modifiers : (s_Modifiers | m_Event.modifiers);
-                first = false;
+                s_Modifiers = m_Event.modifiers;
 
                 if (target != null)
                 {
@@ -480,7 +478,7 @@ namespace UnityEngine.UIElements
             public PenStatus penStatus { get; private set; }
             public Vector2 radius { get; private set; }
             public Vector2 radiusVariance { get; private set; }
-            public EventModifiers modifiers { get; private set; }
+            public EventModifiers modifiers { get; internal set; }
 
             public bool shiftKey => (modifiers & EventModifiers.Shift) != 0;
             public bool ctrlKey => (modifiers & EventModifiers.Control) != 0;
